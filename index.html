@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="Range">
+<meta name="theme-color" content="#0F1A16">
+<title>Range — Golf Fitness Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0F1A16;
+  --surface:#17241F;
+  --raised:#1E2E28;
+  --line:#2C3E37;
+  --bone:#ECE7DA;
+  --muted:#8C9A92;
+  --signal:#E4D24C;
+  --sage:#7FB0A0;
+  --flag:#D9553D;
+  --card:'Barlow Condensed', 'Oswald', 'Arial Narrow', sans-serif;
+  --body:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --pad:16px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+body{background:var(--ink);color:var(--bone);font-family:var(--body);font-size:15px;line-height:1.45;overscroll-behavior-y:contain}
+#app{max-width:520px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;position:relative}
+
+.h1{font-family:var(--card);font-weight:700;font-size:30px;letter-spacing:.02em;text-transform:uppercase;line-height:1}
+.h2{font-family:var(--card);font-weight:600;font-size:21px;letter-spacing:.03em;text-transform:uppercase;line-height:1.1}
+.eyebrow{font-family:var(--card);font-weight:600;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.num{font-family:var(--card);font-weight:700;font-variant-numeric:tabular-nums}
+.small{font-size:13px;color:var(--muted)}
+
+header{position:sticky;top:0;z-index:20;background:var(--ink);padding:calc(env(safe-area-inset-top) + 14px) var(--pad) 10px;border-bottom:1px solid var(--line);display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+main{flex:1;padding:var(--pad) var(--pad) 120px}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:rgba(15,26,22,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:6px 0 calc(env(safe-area-inset-bottom) + 6px);display:flex}
+nav .navwrap{max-width:520px;margin:0 auto;width:100%;display:flex}
+nav button{flex:1;background:none;border:0;color:var(--muted);font-family:var(--card);font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:10px 2px 8px;cursor:pointer}
+nav button .dotline{display:block;height:2px;width:22px;margin:6px auto 0;background:transparent;border-radius:2px}
+nav button.on{color:var(--signal)}
+nav button.on .dotline{background:var(--signal)}
+
+button,input,select,textarea{font-family:inherit;font-size:inherit}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--raised);color:var(--bone);border:1px solid var(--line);border-radius:10px;padding:13px 16px;cursor:pointer;font-family:var(--card);font-weight:600;font-size:16px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--signal);color:#14201B;border-color:var(--signal);font-weight:700}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--flag);border-color:#472e28}
+.btn.block{width:100%}
+.btn.sm{padding:9px 12px;font-size:13px;border-radius:8px}
+.row{display:flex;gap:10px}
+.row>*{flex:1}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.card.tap{cursor:pointer}
+.card.tap:active{background:var(--raised)}
+.between{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.stack{display:flex;flex-direction:column;gap:2px;min-width:0}
+.trunc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip{display:inline-block;font-family:var(--card);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--sage);border:1px solid #2e463d;border-radius:999px;padding:2px 8px}
+.sectionhead{display:flex;align-items:baseline;justify-content:space-between;margin:22px 0 10px}
+.sectionhead:first-child{margin-top:4px}
+
+label.field{display:block;margin-bottom:14px}
+label.field .eyebrow{display:block;margin-bottom:6px}
+input[type=text],input[type=number],input[type=url],select,textarea{width:100%;background:var(--ink);border:1px solid var(--line);color:var(--bone);border-radius:9px;padding:12px;outline:none}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+textarea{min-height:80px;resize:vertical}
+.search{width:100%;margin-bottom:12px}
+
+/* equipment filter rail */
+.rail{display:flex;gap:7px;overflow-x:auto;padding-bottom:12px;margin-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.rail::-webkit-scrollbar{display:none}
+.rail button{white-space:nowrap;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:7px 13px;font-family:var(--card);font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.rail button.on{background:var(--signal);border-color:var(--signal);color:#14201B}
+
+.exblock{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:14px;overflow:hidden}
+.exhead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.exhead .h2{font-size:18px}
+.gridhead,.setrow{display:grid;align-items:center;gap:8px;padding:8px 12px}
+.gridhead{border-bottom:1px solid var(--line)}
+.gridhead span{font-family:var(--card);font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:center}
+.gridhead span:first-child{text-align:left}
+.setrow{border-bottom:1px solid rgba(44,62,55,.5)}
+.setrow:last-child{border-bottom:0}
+.setrow.done{background:rgba(228,210,77,.07)}
+.setno{font-family:var(--card);font-weight:700;font-size:17px;color:var(--muted)}
+.setrow.done .setno{color:var(--signal)}
+.setrow input,.setrow select{text-align:center;padding:11px 2px;font-family:var(--card);font-weight:700;font-size:19px;font-variant-numeric:tabular-nums;border-radius:8px}
+.setrow select{font-size:15px;letter-spacing:.04em;text-transform:uppercase;text-align-last:center;appearance:none}
+.setrow input::placeholder{color:#4c5c55;font-weight:600}
+.prev{font-family:var(--card);font-weight:600;font-size:14px;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
+.mark{width:44px;height:44px;border-radius:8px;border:1.5px solid var(--line);background:transparent;color:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700}
+.mark.on{background:var(--signal);border-color:var(--signal);color:#14201B}
+.exfoot{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line)}
+.exfoot button{flex:1}
+
+#timer{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--signal);color:#14201B;padding:12px var(--pad) calc(env(safe-area-inset-bottom) + 12px);display:none}
+#timer.on{display:block}
+#timer.work{background:var(--sage)}
+#timer .inner{max-width:520px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+#timer .t{font-family:var(--card);font-weight:700;font-size:30px;font-variant-numeric:tabular-nums;line-height:1}
+#timer button{background:rgba(20,32,27,.15);border:1px solid rgba(20,32,27,.35);color:#14201B;border-radius:8px;padding:8px 12px;font-family:var(--card);font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+
+.empty{text-align:center;padding:44px 20px;color:var(--muted)}
+.empty .h2{color:var(--bone);margin-bottom:8px}
+.toast{position:fixed;bottom:96px;left:50%;transform:translateX(-50%);background:var(--bone);color:var(--ink);padding:11px 18px;border-radius:999px;font-weight:600;font-size:14px;z-index:60;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90%;text-align:center}
+.toast.on{opacity:1}
+.divider{height:1px;background:var(--line);margin:16px 0}
+a{color:var(--signal)}
+.tally{display:flex;gap:3px;align-items:center}
+.tally i{width:7px;height:14px;border-radius:1px;background:var(--line);display:block}
+.tally i.on{background:var(--signal)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+#work{position:fixed;inset:0;z-index:75;display:none;align-items:center;justify-content:center;background:rgba(8,14,12,.94)}
+#work.on{display:flex}
+#work .sheet{width:100%;max-width:520px;padding:0 var(--pad);text-align:center}
+#work .eyebrow{display:block;margin-bottom:10px}
+#work .bigt{font-family:var(--card);font-weight:700;font-size:104px;line-height:1;color:var(--signal);font-variant-numeric:tabular-nums;margin-bottom:28px}
+#work .bigt.low{color:var(--flag)}
+.mark.tm{color:var(--sage);font-size:17px}
+#ask{position:fixed;inset:0;z-index:70;display:none;align-items:flex-end;justify-content:center;background:rgba(8,14,12,.7)}
+#ask.on{display:flex}
+#ask .sheet{background:var(--surface);border:1px solid var(--line);border-bottom:0;border-radius:16px 16px 0 0;width:100%;max-width:520px;padding:22px var(--pad) calc(env(safe-area-inset-bottom) + 18px)}
+#ask .h2{margin-bottom:6px}
+#ask p{color:var(--muted);margin:0 0 18px;font-size:14px}
+@media (min-width:560px){#ask{align-items:center}#ask .sheet{border-radius:16px;border-bottom:1px solid var(--line);margin:0 16px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="stack">
+      <span class="eyebrow" id="hdEyebrow">Golf Fitness</span>
+      <span class="h1" id="hdTitle">Range</span>
+    </div>
+    <div id="hdAction"></div>
+  </header>
+  <main id="view"></main>
+  <nav id="nav">
+    <div class="navwrap">
+      <button data-tab="home" class="on">Train<span class="dotline"></span></button>
+      <button data-tab="programs">Programs<span class="dotline"></span></button>
+      <button data-tab="library">Exercises<span class="dotline"></span></button>
+      <button data-tab="history">History<span class="dotline"></span></button>
+    </div>
+  </nav>
+</div>
+<div id="timer"><div class="inner">
+  <div><div class="eyebrow" id="timerLbl" style="color:#14201B;opacity:.7">Rest</div><div class="t" id="timerT">1:30</div></div>
+  <div id="timerBtns" style="display:flex;gap:8px"></div>
+</div></div>
+<div id="work"><div class="sheet">
+  <div class="eyebrow" id="workName">Exercise</div>
+  <div class="bigt" id="workT">0:30</div>
+  <div class="row">
+    <button class="btn ghost" id="workCancel">Cancel</button>
+    <button class="btn" id="workPause">Pause</button>
+    <button class="btn primary" id="workDone">Stop &amp; log</button>
+  </div>
+</div></div>
+<div id="ask"><div class="sheet">
+  <div class="h2" id="askT">Are you sure?</div>
+  <p id="askB"></p>
+  <div class="row">
+    <button class="btn ghost" id="askNo">Cancel</button>
+    <button class="btn primary" id="askYes">Confirm</button>
+  </div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   Range — a golf strength log. Single file.
+   Load type is driven by equipment:
+     TRX / TRX Rip Trainer / Bodyweight -> no load column
+     Resistance Tube                    -> band level
+     everything else                    -> kg
+   ============================================================ */
+
+const BUILD='2026-08-11 · ids';
+const K = { lib:'gf-library', prog:'gf-programs', hist:'gf-history', act:'gf-active', libsig:'gf-libsig', libsrc:'gf-libsrc', libmode:'gf-libmode' };
+const uid = () => Math.random().toString(36).slice(2,10);
+
+const CATS  = ['Warm-Up','Mobility','Stability','Rotational Power','Lower Body','Upper Body','Golf Specific'];
+const EQUIP = ['Barbell','Dumbbell','Kettlebell','TRX','TRX Rip Trainer','Resistance Tube','Bodyweight','Medicine Ball','Trap Bar','Cable Cross Machine','Strap','Jump Rope'];
+const BANDS = ['Light','Medium','Heavy','Ultimate','Extreme'];
+const NO_LOAD = ['TRX','TRX Rip Trainer','Bodyweight','Jump Rope'];
+/* A strap takes whatever you clip to it, so its load type is set per exercise. */
+const EITHER_LOAD = ['Strap'];
+
+function loadKind(ex){
+  if(!ex || NO_LOAD.includes(ex.equip)) return 'none';
+  if(ex.equip==='Resistance Tube') return 'band';
+  if(EITHER_LOAD.includes(ex.equip)) return ex.loadMode==='band' ? 'band' : 'kg';
+  return 'kg';
+}
+/* A logged set carries its own load type: a string is a band, a number is kg.
+   That way switching a strap exercise between the two never rewrites history. */
+function kindOfSet(ex,s){
+  if(s && s.w!=null) return typeof s.w==='string' ? 'band' : 'kg';
+  return loadKind(ex);
+}
+
+/* ---------- default library ---------- */
+const slug = n => String(n).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+function seedLibrary(){
+  /* sid = stable preset key. Rename an exercise all you like; sid is what
+     updates match on, so your version is never duplicated by the original. */
+  const mk=(name,cat,equip,type)=>({id:uid(),sid:slug(name),name,cat,equip,type,video:'',notes:'',archived:false});
+  return [
+    mk('Jump Rope','Warm-Up','Jump Rope','time'),
+    mk('Jump Rope Single Leg','Warm-Up','Jump Rope','time'),
+    mk('Open Book T-Spine Rotation','Mobility','Bodyweight','reps'),
+    mk('Thread the Needle','Mobility','Bodyweight','reps'),
+    mk('Seated T-Spine Rotation','Mobility','Bodyweight','reps'),
+    mk('90/90 Hip Switch','Mobility','Bodyweight','reps'),
+    mk('Half-Kneeling Hip Flexor Stretch','Mobility','Bodyweight','time'),
+    mk("World's Greatest Stretch",'Mobility','Bodyweight','reps'),
+    mk('Ankle Wall Mobilisation','Mobility','Bodyweight','reps'),
+    mk('Shoulder CARs','Mobility','Bodyweight','reps'),
+    mk('Wrist Flexor & Extensor Stretch','Mobility','Bodyweight','time'),
+    mk('Cat-Cow','Mobility','Bodyweight','reps'),
+    mk('Standing Trunk Rotation with Club','Mobility','Bodyweight','reps'),
+
+    mk('Pallof Press','Stability','Resistance Tube','reps'),
+    mk('Half-Kneeling Pallof Press','Stability','Resistance Tube','reps'),
+    mk('Resisted Chop','Stability','Resistance Tube','reps'),
+    mk('Resisted Lift','Stability','Resistance Tube','reps'),
+    mk('Dead Bug','Stability','Bodyweight','reps'),
+    mk('Bird Dog','Stability','Bodyweight','reps'),
+    mk('Front Plank','Stability','Bodyweight','time'),
+    mk('Side Plank','Stability','Bodyweight','time'),
+    mk('Copenhagen Plank','Stability','Bodyweight','time'),
+    mk('Strap Anti-Rotation Hold','Stability','Strap','time'),
+    mk('Cable Pallof Press','Stability','Cable Cross Machine','reps'),
+    mk('Cable Chop','Stability','Cable Cross Machine','reps'),
+    mk('Cable Lift','Stability','Cable Cross Machine','reps'),
+    mk('TRX Fallout','Stability','TRX','reps'),
+    mk('Suitcase Carry','Stability','Kettlebell','time'),
+    mk('Glute Bridge','Stability','Bodyweight','reps'),
+    mk('Single-Leg Glute Bridge','Stability','Bodyweight','reps'),
+
+    mk('Med Ball Rotational Scoop Toss','Rotational Power','Medicine Ball','reps'),
+    mk('Med Ball Side Slam','Rotational Power','Medicine Ball','reps'),
+    mk('Med Ball Overhead Slam','Rotational Power','Medicine Ball','reps'),
+    mk('Med Ball Shot Put Throw','Rotational Power','Medicine Ball','reps'),
+    mk('Med Ball Step-Behind Throw','Rotational Power','Medicine Ball','reps'),
+    mk('Strap Resisted Rotation','Rotational Power','Strap','reps'),
+    mk('Cable Rotational Press','Rotational Power','Cable Cross Machine','reps'),
+    mk('Rip Trainer Rotational Press','Rotational Power','TRX Rip Trainer','reps'),
+    mk('Rip Trainer Chop','Rotational Power','TRX Rip Trainer','reps'),
+    mk('Rip Trainer Lift','Rotational Power','TRX Rip Trainer','reps'),
+    mk('Landmine Rotation','Rotational Power','Barbell','reps'),
+    mk('Band Resisted Rotation','Rotational Power','Resistance Tube','reps'),
+    mk('Speed Club Swings','Rotational Power','Bodyweight','reps'),
+
+    mk('Barbell Back Squat','Lower Body','Barbell','reps'),
+    mk('Goblet Squat','Lower Body','Kettlebell','reps'),
+    mk('Trap Bar Deadlift','Lower Body','Trap Bar','reps'),
+    mk('Romanian Deadlift','Lower Body','Barbell','reps'),
+    mk('Single-Leg RDL','Lower Body','Dumbbell','reps'),
+    mk('Bulgarian Split Squat','Lower Body','Dumbbell','reps'),
+    mk('Reverse Lunge','Lower Body','Dumbbell','reps'),
+    mk('Lateral Lunge','Lower Body','Dumbbell','reps'),
+    mk('Hip Thrust','Lower Body','Barbell','reps'),
+    mk('Step-Up','Lower Body','Dumbbell','reps'),
+    mk('Nordic Hamstring Curl','Lower Body','Bodyweight','reps'),
+    mk('Standing Calf Raise','Lower Body','Dumbbell','reps'),
+
+    mk('One-Arm Dumbbell Row','Upper Body','Dumbbell','reps'),
+    mk('Chest-Supported Row','Upper Body','Dumbbell','reps'),
+    mk('TRX Row','Upper Body','TRX','reps'),
+    mk('TRX Chest Press','Upper Body','TRX','reps'),
+    mk('Lat Pulldown','Upper Body','Cable Cross Machine','reps'),
+    mk('Cable Seated Row','Upper Body','Cable Cross Machine','reps'),
+    mk('Cable Face Pull','Upper Body','Cable Cross Machine','reps'),
+    mk('Banded Lat Pulldown','Upper Body','Resistance Tube','reps'),
+    mk('Pull-Up','Upper Body','Bodyweight','reps'),
+    mk('Push-Up','Upper Body','Bodyweight','reps'),
+    mk('Dumbbell Bench Press','Upper Body','Dumbbell','reps'),
+    mk('Half-Kneeling Landmine Press','Upper Body','Barbell','reps'),
+    mk('Face Pull','Upper Body','Resistance Tube','reps'),
+    mk('Reverse Fly','Upper Body','Dumbbell','reps'),
+    mk('Y-T-W Raise','Upper Body','Dumbbell','reps'),
+    mk("Farmer's Carry",'Upper Body','Kettlebell','time'),
+
+    mk('Strap Resisted Swing','Golf Specific','Strap','reps'),
+    mk('Step-Change Drill','Golf Specific','Bodyweight','reps'),
+    mk('Pump Drill','Golf Specific','Bodyweight','reps'),
+    mk('Impact Bag Drill','Golf Specific','Bodyweight','reps'),
+    mk('Lead-Arm Only Swings','Golf Specific','Bodyweight','reps'),
+    mk('Slow-Motion Sequencing Swings','Golf Specific','Bodyweight','reps'),
+    mk('Overspeed Swing Set','Golf Specific','Bodyweight','reps'),
+  ];
+}
+
+/* Older saves had no equipment and a 4-way tracking type. Bring them forward. */
+/* Applies only to saves made before equipment existed. The cable originals are
+   back in the seed list, so those users end up with both variants. */
+const RENAMED = {
+  'Cable Chop':'Resisted Chop',
+  'Cable Lift':'Resisted Lift',
+  'Cable Rotational Press':'Rip Trainer Rotational Press',
+  'Lat Pulldown':'Banded Lat Pulldown'
+};
+function migrateLibrary(lib){
+  const seed = seedLibrary();
+  const map = {}; seed.forEach(e=>{ map[e.name]={equip:e.equip,type:e.type}; });
+  let touched=false;
+  lib.forEach(e=>{
+    const hadLoad = e.type==='weight_reps' || e.type==='weight_time';
+    if(!e.equip){
+      const key = RENAMED[e.name] || e.name;
+      if(RENAMED[e.name]) e.name = key;
+      e.equip = (map[key] && map[key].equip) || (hadLoad ? 'Dumbbell' : 'Bodyweight');
+      touched = true;
+    }
+    if(e.type==='weight_reps'){ e.type='reps'; touched=true; }
+    if(e.type==='weight_time'){ e.type='time'; touched=true; }
+  });
+  // Backfill sid on saves made before it existed, matching on the name as it stands now.
+  const seedByName = {}; seed.forEach(e=>{ seedByName[e.name]=e.sid; });
+  lib.forEach(e=>{
+    if(e.sid) return;
+    if(seedByName[e.name]){ e.sid=seedByName[e.name]; touched=true; }
+  });
+  // Pull in movements added to the default library since this save was made.
+  const have = new Set(lib.map(e=>e.sid).filter(Boolean));
+  const haveNames = new Set(lib.map(e=>e.name));
+  seed.forEach(e=>{
+    if(have.has(e.sid) || haveNames.has(e.name)) return;
+    lib.push(e); touched=true;
+  });
+  return touched;
+}
+
+/* ---------- state ---------- */
+let S = { lib:[], prog:[], hist:[], act:null, libsrc:'', libmode:'mirror' };
+let view = 'home';
+let ctx = {};
+let T = { mode:null, left:0, target:0, int:null, e:0, s:0 };
+const restDefault = 90;
+
+/* Storage adapter. Inside Claude the host provides window.storage; opened as a
+   plain file or served from a web host it falls back to the browser's own store.
+   Memory-only is the last resort and warns loudly, because nothing survives a refresh. */
+const store = (function(){
+  if(typeof window!=='undefined' && window.storage){
+    return { kind:'host',
+      get:k=>window.storage.get(k),
+      set:(k,v)=>window.storage.set(k,v) };
+  }
+  try{
+    const probe='__range_probe__';
+    window.localStorage.setItem(probe,'1'); window.localStorage.removeItem(probe);
+    return { kind:'browser',
+      get:async k=>{ const v=window.localStorage.getItem(k); return v==null?null:{value:v}; },
+      set:async (k,v)=>{ window.localStorage.setItem(k,v); } };
+  }catch(e){}
+  const mem={};
+  return { kind:'memory',
+    get:async k=>mem[k]==null?null:{value:mem[k]},
+    set:async (k,v)=>{ mem[k]=v; } };
+})();
+
+async function load(key, fallback){
+  try{ const r = await store.get(key); return r ? JSON.parse(r.value) : fallback; }
+  catch(e){ return fallback; }
+}
+async function save(key, val){
+  try{ await store.set(key, JSON.stringify(val)); }
+  catch(e){ toast('Could not save — storage is full or blocked'); }
+}
+async function boot(){
+  S.lib = await load(K.lib, null);
+  if(!S.lib || !S.lib.length){ S.lib = seedLibrary(); await save(K.lib,S.lib); }
+  else if(migrateLibrary(S.lib)){ await save(K.lib,S.lib); }
+  S.prog = await load(K.prog, []);
+  S.prog.forEach(p=>{ if(!p.mode) p.mode='standard'; });
+  S.hist = await load(K.hist, []);
+  S.act  = await load(K.act, null);
+  S.libsrc = await load(K.libsrc, '') || '';
+  S.libmode = await load(K.libmode, 'mirror') || 'mirror';
+  if(adoptLibraryIds()){ await save(K.prog,S.prog); await save(K.hist,S.hist); if(S.act) await save(K.act,S.act); }
+  render();
+  syncLibrary(false);   // background; never blocks the first paint
+  if(store.kind==='memory') toast('Warning: this browser is blocking storage. Nothing will be saved.');
+}
+
+/* Rewrite every reference from the device's internal ID to the permanent
+   library ID, so a training log stays meaningful if it ever moves off this
+   phone. Runs once; afterwards there is nothing left to rewrite. */
+function adoptLibraryIds(){
+  let touched=false;
+  const fix = ref => {
+    const ex = S.lib.find(e=>e.id===ref);
+    if(ex && ex.sid && ex.sid!==ref){ touched=true; return ex.sid; }
+    return ref;
+  };
+  S.prog.forEach(p=>p.items.forEach(it=>{ it.exId=fix(it.exId); }));
+  S.hist.forEach(h=>h.entries.forEach(en=>{ en.exId=fix(en.exId); }));
+  if(S.act) S.act.entries.forEach(en=>{ en.exId=fix(en.exId); });
+  return touched;
+}
+
+/* ---------- helpers ---------- */
+// Accepts either the permanent library ID or the device's internal one.
+const byId = x => S.lib.find(e=>e.id===x || (e.sid && e.sid===x));
+const fmtDate = ts => new Date(ts).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'});
+const fmtDur = ms => { const m=Math.round(ms/60000); return m<60?m+' min':Math.floor(m/60)+'h '+(m%60)+'m'; };
+const mmss = s => Math.floor(s/60)+':'+String(Math.max(0,s%60)).padStart(2,'0');
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function loadLabel(ex){ const k=loadKind(ex); return k==='kg'?'kg':(k==='band'?'Band':''); }
+function measureLabel(ex){ return ex.type==='time' ? 'sec' : 'reps'; }
+
+function setLabel(ex,s){
+  const k=kindOfSet(ex,s);
+  const m=(s.r==null?'\u2013':s.r)+(ex.type==='time'?'s':'');
+  if(k==='kg')   return (s.w==null?'\u2013':s.w)+'kg \u00d7 '+m;
+  if(k==='band') return (s.w||'\u2013')+' \u00d7 '+m;
+  return m+(ex.type==='time'?'':' reps');
+}
+function scoreOf(ex,s){
+  const k=kindOfSet(ex,s);
+  if(k==='kg')   return ex.type==='time' ? (s.w||0) : (s.w||0)*(1+(s.r||0)/30);
+  if(k==='band') return (BANDS.indexOf(s.w)+1)*(s.r||0);
+  return s.r||0;
+}
+function lastSetsFor(exId){
+  for(let i=S.hist.length-1;i>=0;i--){
+    const en=S.hist[i].entries.find(x=>x.exId===exId);
+    if(en && en.sets.length) return en.sets;
+  }
+  return null;
+}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('on');
+  clearTimeout(t._x); t._x=setTimeout(()=>t.classList.remove('on'),1900);
+}
+function ask(title, body, yes){
+  return new Promise(res=>{
+    const box=document.getElementById('ask');
+    document.getElementById('askT').textContent=title;
+    document.getElementById('askB').textContent=body||'';
+    const y=document.getElementById('askYes'), n=document.getElementById('askNo');
+    y.textContent=yes||'Confirm';
+    const close=v=>{ box.classList.remove('on'); y.removeEventListener('click',ok); n.removeEventListener('click',no); box.removeEventListener('click',bg); res(v); };
+    const ok=()=>close(true), no=()=>close(false);
+    const bg=ev=>{ if(ev.target===box) close(false); };
+    y.addEventListener('click',ok); n.addEventListener('click',no); box.addEventListener('click',bg);
+    box.classList.add('on'); y.focus();
+  });
+}
+
+/* ---------- exercise countdown ----------
+   For anything measured in seconds. Counts the set down, beeps the last three,
+   then logs the time and ticks the set off. */
+let work=null, workTimer=null, audio=null;
+function beep(freq,ms){
+  try{
+    audio = audio || new (window.AudioContext||window.webkitAudioContext)();
+    const o=audio.createOscillator(), g=audio.createGain();
+    o.connect(g); g.connect(audio.destination);
+    o.frequency.value=freq; o.type='sine';
+    g.gain.setValueAtTime(.001,audio.currentTime);
+    g.gain.exponentialRampToValueAtTime(.25,audio.currentTime+.01);
+    g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+ms/1000);
+    o.start(); o.stop(audio.currentTime+ms/1000);
+  }catch(err){}
+}
+function paintWork(){
+  const t=document.getElementById('workT');
+  t.textContent=mmss(work.left);
+  t.classList.toggle('low', work.left<=5);
+}
+function startWork(ei,si){
+  readSetInputs();
+  const en=S.act.entries[ei], st=en.sets[si], ex=byId(en.exId)||{name:''};
+  const prev=lastSetsFor(en.exId);
+  let target = st.r!=null ? st.r : (prev&&prev[si]&&prev[si].r!=null ? prev[si].r : 30);
+  target = Math.max(1, Math.round(+target)||30);
+  work={ei,si,target,left:target,paused:false};
+  document.getElementById('workName').textContent = ex.name+' \u00b7 set '+(si+1);
+  document.getElementById('workPause').textContent='Pause';
+  paintWork();
+  document.getElementById('work').classList.add('on');
+  beep(660,90);
+  clearInterval(workTimer);
+  workTimer=setInterval(tickWork,1000);
+}
+function tickWork(){
+  if(!work||work.paused) return;
+  work.left--;
+  if(work.left>0 && work.left<=3) beep(660,90);
+  if(work.left<=0){ beep(990,320); return endWork(work.target); }
+  paintWork();
+}
+async function endWork(secs){
+  clearInterval(workTimer); workTimer=null;
+  document.getElementById('work').classList.remove('on');
+  if(!work) return;
+  const st=S.act.entries[work.ei].sets[work.si];
+  st.r=secs; st.done=true;
+  work=null;
+  await save(K.act,S.act);
+  ctx._scroll=window.scrollY; render();
+  startRest(restDefault);
+}
+document.getElementById('workCancel').addEventListener('click',()=>{
+  clearInterval(workTimer); workTimer=null; work=null;
+  document.getElementById('work').classList.remove('on');
+});
+document.getElementById('workPause').addEventListener('click',e=>{
+  if(!work) return;
+  work.paused=!work.paused;
+  e.target.textContent = work.paused ? 'Resume' : 'Pause';
+});
+document.getElementById('workDone').addEventListener('click',()=>{
+  if(!work) return;
+  endWork(Math.max(1, work.target-work.left));   // log what you actually did
+});
+
+/* ---------- circuit engine: drives AMRAP's cap clock and the interval sequencer ----------
+   Ticks once a second and repaints only the clock node, so typing and scrolling
+   are never interrupted by a re-render. */
+let C = { int:null, running:false };
+
+function cirPaint(){
+  const t=document.getElementById('cirT');
+  if(t){ t.textContent=mmss(Math.max(0,S.act.left)); t.classList.toggle('low', S.act.left<=5); }
+  const b=document.getElementById('cirBtn');
+  if(b) b.textContent = C.running ? 'Pause' : (S.act.left===(S.act.capSec||S.act.workSec) ? 'Start' : 'Resume');
+}
+function cirStop(){ clearInterval(C.int); C.int=null; C.running=false; }
+function cirToggle(){
+  if(C.running){ cirStop(); cirPaint(); return; }
+  C.running=true; beep(660,90);
+  clearInterval(C.int);
+  C.int=setInterval(cirTick,1000);
+  cirPaint();
+}
+function cirTick(){
+  if(!S.act){ return cirStop(); }
+  S.act.left--;
+  if(S.act.left>0 && S.act.left<=3) beep(660,90);
+  if(S.act.left<=0){
+    if(S.act.mode==='amrap'){ beep(990,420); cirStop(); S.act.left=0; save(K.act,S.act); render(); toast('Time \u2014 log your partial round'); return; }
+    return hiitAdvance();
+  }
+  cirPaint();
+  if(S.act.left%5===0) save(K.act,S.act);
+}
+
+/* ---- intervals ---- */
+function hiitPlan(){
+  // [{exIdx, kind:'work'|'rest', round}] flattened across all rounds
+  const steps=[];
+  for(let r=0;r<S.act.rounds;r++){
+    S.act.entries.forEach((en,i)=>{
+      steps.push({exIdx:i,kind:'work',round:r+1});
+      if(S.act.restSec>0) steps.push({exIdx:i,kind:'rest',round:r+1});
+    });
+  }
+  return steps;
+}
+function hiitStep(){ return hiitPlan()[S.act.step]||null; }
+async function hiitAdvance(){
+  const plan=hiitPlan(), cur=plan[S.act.step];
+  if(cur && cur.kind==='work'){
+    const en=S.act.entries[cur.exIdx];
+    en.sets.push({w:en.load==null?null:en.load, r:S.act.workSec, done:true});
+  }
+  S.act.step++;
+  const nxt=plan[S.act.step];
+  if(!nxt){
+    beep(990,500); cirStop(); S.act.left=0;
+    await save(K.act,S.act); render();
+    toast('Circuit complete'); return;
+  }
+  beep(nxt.kind==='work'?990:440, 260);
+  S.act.left = nxt.kind==='work' ? S.act.workSec : S.act.restSec;
+  await save(K.act,S.act);
+  render();
+}
+
+/* ---------- countdown bar: rest between sets, or the timed set itself ---------- */
+const REST_BTNS='<button data-t="-15">\u221215s</button><button data-t="+15">+15s</button><button data-t="skip">Skip</button>';
+
+function paintTimer(){ document.getElementById('timerT').textContent=mmss(Math.max(0,T.left)); }
+function openTimer(mode,sec){
+  clearInterval(T.int);
+  T.mode=mode; T.left=sec; T.target=sec;
+  const bar=document.getElementById('timer');
+  bar.classList.add('on');
+  document.getElementById('timerLbl').textContent='Rest';
+  document.getElementById('timerBtns').innerHTML=REST_BTNS;
+  paintTimer();
+  T.int=setInterval(()=>{
+    T.left--; paintTimer();
+    if(T.left<=0) closeTimer('Rest done');
+  },1000);
+}
+function closeTimer(msg){
+  clearInterval(T.int); T.int=null; T.mode=null;
+  document.getElementById('timer').classList.remove('on');
+  if(msg) toast(msg);
+}
+function startRest(sec){ openTimer('rest',sec); }
+function stopRest(){ closeTimer(); }
+
+document.getElementById('timer').addEventListener('click',e=>{
+  const a=e.target.dataset.t; if(!a) return;
+  if(a==='skip'||a==='cancel') return closeTimer();
+  T.left=Math.max(5, T.left+(a==='+15'?15:-15));
+  if(a==='+15') T.target+=15;
+  paintTimer();
+});
+
+/* ============================================================ RENDER */
+function render(){
+  const v=document.getElementById('view');
+  document.getElementById('nav').style.display=(view==='session')?'none':'flex';
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on', b.dataset.tab===view));
+  const H={
+    home:['Golf Fitness','Range'], programs:['Your routines','Programs'],
+    library:['Movement bank','Exercises'], history:['Every session logged','History'],
+    session:['In progress', S.act?S.act.name:'Workout'],
+    progedit:['Editing routine', ctx.prog?ctx.prog.name:'Program'],
+    exdetail:['Exercise', ctx.ex?ctx.ex.name:''],
+    sessdetail:['Session', ctx.sess?fmtDate(ctx.sess.date):'']
+  }[view]||['',''];
+  document.getElementById('hdEyebrow').textContent=H[0];
+  document.getElementById('hdTitle').textContent=H[1];
+  document.getElementById('hdAction').innerHTML=headerAction();
+  v.innerHTML=({home:viewHome,programs:viewPrograms,library:viewLibrary,history:viewHistory,
+    session:viewSession,progedit:viewProgEdit,exdetail:viewExDetail,sessdetail:viewSessDetail}[view]||viewHome)();
+  window.scrollTo(0, ctx._scroll||0); ctx._scroll=0;
+}
+function headerAction(){
+  if(view==='programs') return '<button class="btn sm primary" data-act="newprog">+ New</button>';
+  if(view==='library')  return '<button class="btn sm" data-act="newex">+ New</button>';
+  if(['progedit','exdetail','sessdetail'].includes(view)) return '<button class="btn sm ghost" data-act="back">Back</button>';
+  return '';
+}
+
+/* ---------- HOME ---------- */
+function viewHome(){
+  let h='';
+  if(S.act){
+    const done=S.act.entries.reduce((n,en)=>n+en.sets.filter(s=>s.done).length,0);
+    h+='<div class="card" style="border-color:var(--signal)"><div class="between">'+
+      '<div class="stack"><span class="eyebrow" style="color:var(--signal)">Workout in progress</span>'+
+      '<span class="h2">'+esc(S.act.name)+'</span><span class="small">'+done+' set'+(done===1?'':'s')+' logged</span></div>'+
+      '<button class="btn primary" data-act="resume">Resume</button></div></div>';
+  }
+  h+='<div class="sectionhead"><span class="eyebrow">Start a session</span></div>';
+  if(!S.prog.length){
+    h+='<div class="card"><div class="stack" style="gap:10px"><span class="small">No programs yet. Build one, or start empty and add exercises as you go.</span>'+
+      '<button class="btn primary block" data-act="newprog">Build a program</button></div></div>';
+  } else {
+    S.prog.forEach(p=>{
+      h+='<div class="card tap" data-act="startprog" data-id="'+p.id+'"><div class="between"><div class="stack">'+
+        '<span class="h2">'+esc(p.name)+'</span><span class="small">'+p.items.length+' exercise'+(p.items.length===1?'':'s')+'</span></div>'+
+        '<span class="btn sm primary">Start</span></div></div>';
+    });
+  }
+  h+='<button class="btn block ghost" data-act="startempty" style="margin-top:4px">Start empty workout</button>';
+  const last=S.hist.slice(-3).reverse();
+  if(last.length){
+    h+='<div class="sectionhead"><span class="eyebrow">Recent</span><span class="small" data-act="tab" data-tab="history" style="cursor:pointer">See all</span></div>';
+    last.forEach(s=>{ h+=sessionCard(s); });
+  }
+  return h;
+}
+function sessionCard(s){
+  const sets=s.entries.reduce((n,e)=>n+e.sets.length,0);
+  const vol=s.entries.reduce((t,en)=>{
+    const ex=byId(en.exId); if(!ex||loadKind(ex)!=='kg'||ex.type==='time') return t;
+    return t+en.sets.reduce((a,x)=>a+(x.w||0)*(x.r||0),0);
+  },0);
+  return '<div class="card tap" data-act="opensess" data-id="'+s.id+'"><div class="between"><div class="stack">'+
+    '<span class="eyebrow">'+fmtDate(s.date)+'</span><span class="h2 trunc">'+esc(s.name)+'</span>'+
+    '<span class="small">'+s.entries.length+' exercises \u00b7 '+sets+' sets'+(vol?' \u00b7 '+Math.round(vol).toLocaleString()+' kg volume':'')+'</span></div>'+
+    '<span class="num" style="font-size:22px;color:var(--muted)">'+(s.duration?fmtDur(s.duration):'')+'</span></div></div>';
+}
+
+/* ---------- PROGRAMS ---------- */
+function viewPrograms(){
+  if(!S.prog.length) return '<div class="empty"><div class="h2">No programs yet</div>'+
+    '<p>A program is a saved list of exercises with your target sets and reps — your Tuesday session, your in-season block, whatever you run.</p>'+
+    '<button class="btn primary" data-act="newprog">Build your first</button></div>';
+  return S.prog.map(p=>'<div class="card tap" data-act="editprog" data-id="'+p.id+'"><div class="between"><div class="stack">'+
+    '<span class="h2">'+esc(p.name)+'</span>'+
+    (p.mode&&p.mode!=='standard'?'<span class="chip" style="align-self:flex-start;margin:3px 0">'+(p.mode==='amrap'?'AMRAP '+(p.capMin||12)+' min':'Intervals '+(p.workSec||40)+'/'+(p.restSec||20)+' \u00d7'+(p.rounds||4))+'</span>':'')+
+    '<span class="small trunc">'+
+    (p.items.map(i=>esc((byId(i.exId)||{}).name||'?')).join(' \u00b7 ')||'Empty')+'</span></div>'+
+    '<span class="num" style="font-size:26px;color:var(--signal)">'+p.items.length+'</span></div></div>').join('');
+}
+function viewProgEdit(){
+  const p=ctx.prog, m=p.mode||'standard';
+  let h='<label class="field"><span class="eyebrow">Program name</span><input type="text" id="pname" value="'+esc(p.name)+'" placeholder="e.g. In-Season Power A"></label>';
+
+  h+='<label class="field"><span class="eyebrow">Type</span><select id="pmode">'+
+    '<option value="standard"'+(m==='standard'?' selected':'')+'>Standard \u2014 sets and reps</option>'+
+    '<option value="amrap"'+(m==='amrap'?' selected':'')+'>AMRAP \u2014 rounds against a clock</option>'+
+    '<option value="hiit"'+(m==='hiit'?' selected':'')+'>Intervals \u2014 timed work and rest</option>'+
+    '</select></label>';
+
+  if(m==='amrap'){
+    h+='<div class="card"><span class="small">Set a time cap and the reps per round. During the session you tap once per completed round; whatever you get through in the last partial round is logged too.</span></div>'+
+      '<label class="field"><span class="eyebrow">Time cap (minutes)</span><input type="number" inputmode="numeric" id="pcap" value="'+(p.capMin||12)+'"></label>';
+  } else if(m==='hiit'){
+    h+='<div class="card"><span class="small">The app runs the clock: work, rest, next exercise, repeat. Each finished work interval is logged automatically.</span></div>'+
+      '<div class="row">'+
+      '<label class="field"><span class="eyebrow">Work (sec)</span><input type="number" inputmode="numeric" id="pwork" value="'+(p.workSec||40)+'"></label>'+
+      '<label class="field"><span class="eyebrow">Rest (sec)</span><input type="number" inputmode="numeric" id="prest" value="'+(p.restSec||20)+'"></label>'+
+      '<label class="field"><span class="eyebrow">Rounds</span><input type="number" inputmode="numeric" id="prounds" value="'+(p.rounds||4)+'"></label>'+
+      '</div>';
+  }
+
+  h+='<div class="sectionhead"><span class="eyebrow">'+(m==='standard'?'Exercises':'Circuit order')+'</span></div>';
+  if(!p.items.length) h+='<div class="card"><span class="small">Nothing here yet. Add movements from your library below.</span></div>';
+
+  p.items.forEach((it,i)=>{
+    const ex=byId(it.exId)||{name:'(deleted)',type:'reps',cat:'',equip:'Bodyweight'};
+    const k=loadKind(ex);
+    let fields='';
+    if(m==='standard'){
+      let loadField='';
+      if(k==='kg'){
+        loadField='<label class="field" style="margin:0"><span class="eyebrow">Target kg</span>'+
+          '<input type="number" inputmode="decimal" data-pfield="weight" data-i="'+i+'" value="'+(it.weight==null?'':it.weight)+'" placeholder="\u2014"></label>';
+      } else if(k==='band'){
+        loadField='<label class="field" style="margin:0"><span class="eyebrow">Band</span><select data-pfield="weight" data-i="'+i+'">'+
+          '<option value="">\u2014</option>'+BANDS.map(b=>'<option value="'+b+'"'+(it.weight===b?' selected':'')+'>'+b+'</option>').join('')+'</select></label>';
+      }
+      fields='<div class="row">'+
+        '<label class="field" style="margin:0"><span class="eyebrow">Sets</span><input type="number" inputmode="numeric" data-pfield="sets" data-i="'+i+'" value="'+(it.sets==null?3:it.sets)+'"></label>'+
+        '<label class="field" style="margin:0"><span class="eyebrow">Target '+measureLabel(ex)+'</span><input type="number" inputmode="numeric" data-pfield="reps" data-i="'+i+'" value="'+(it.reps==null?'':it.reps)+'" placeholder="\u2014"></label>'+
+        loadField+'</div>';
+    } else if(m==='amrap'){
+      fields='<div class="row">'+
+        '<label class="field" style="margin:0"><span class="eyebrow">'+measureLabel(ex)+' per round</span><input type="number" inputmode="numeric" data-pfield="reps" data-i="'+i+'" value="'+(it.reps==null?'':it.reps)+'" placeholder="\u2014"></label>'+
+        (k==='kg'?'<label class="field" style="margin:0"><span class="eyebrow">Load kg</span><input type="number" inputmode="decimal" data-pfield="weight" data-i="'+i+'" value="'+(it.weight==null?'':it.weight)+'" placeholder="\u2014"></label>':'')+
+        (k==='band'?'<label class="field" style="margin:0"><span class="eyebrow">Band</span><select data-pfield="weight" data-i="'+i+'"><option value="">\u2014</option>'+BANDS.map(b=>'<option value="'+b+'"'+(it.weight===b?' selected':'')+'>'+b+'</option>').join('')+'</select></label>':'')+
+        '</div>';
+    } else {
+      fields='<span class="small">Runs for the work interval set above.</span>';
+    }
+    h+='<div class="card"><div class="between" style="margin-bottom:10px"><div class="stack">'+
+      '<span class="chip">'+esc(ex.equip)+'</span><span class="h2">'+(m==='hiit'?(i+1)+'. ':'')+esc(ex.name)+'</span></div>'+
+      '<div style="display:flex;gap:6px">'+
+      '<button class="btn sm ghost" data-act="pmove" data-i="'+i+'" data-d="-1" aria-label="Move up">\u2191</button>'+
+      '<button class="btn sm ghost" data-act="pmove" data-i="'+i+'" data-d="1" aria-label="Move down">\u2193</button>'+
+      '<button class="btn sm danger" data-act="prem" data-i="'+i+'" aria-label="Remove">\u2715</button></div></div>'+
+      fields+'</div>';
+  });
+
+  if(m==='hiit' && p.items.length){
+    const total=(p.items.length*((+p.workSec||40)+(+p.restSec||20))*(+p.rounds||4));
+    h+='<div class="card"><span class="small">Total: '+p.items.length+' exercises \u00d7 '+(p.rounds||4)+' rounds \u2014 about '+Math.round(total/60)+' minutes.</span></div>';
+  }
+
+  h+='<button class="btn block primary" data-act="padd">+ Add exercise</button><div class="divider"></div>'+
+    '<div class="row"><button class="btn" data-act="pdup">Duplicate</button><button class="btn danger" data-act="pdel">Delete program</button></div>';
+  return h;
+}
+
+/* ---------- LIBRARY ---------- */
+function viewLibrary(){
+  let h='<input class="search" type="text" id="libq" placeholder="Search exercises" value="'+esc(ctx.q||'')+'" autocomplete="off" autocorrect="off" spellcheck="false">';
+  if(ctx.picking) h+='<div class="card"><span class="small">Tap a movement to add it to <b>'+
+    esc((ctx.picking==='session'&&S.act?S.act.name:(ctx.prog&&ctx.prog.name))||'your workout')+'</b>.</span></div>';
+  if(!ctx.picking){
+    h+='<button class="btn block ghost" data-act="libtools" style="margin-bottom:12px">'+
+       (ctx.tools?'\u25be Library tools':'\u25b8 Library tools')+'</button>';
+    if(ctx.tools){
+      h+='<div class="card">'+
+        '<div class="row"><button class="btn sm" data-act="csvout">Export CSV</button>'+
+        '<button class="btn sm" data-act="csvin">Import CSV</button></div>'+
+        '<div style="height:10px"></div>'+
+        '<button class="btn sm block primary" data-act="libsync">Sync library now</button>'+
+        '<label class="field" style="margin:14px 0 0"><span class="eyebrow">Library source</span>'+
+        '<input type="url" id="libsrc" value="'+esc(S.libsrc||'')+'" placeholder="library.csv (in this repo)"></label>'+
+        '<label class="field" style="margin:12px 0 10px"><span class="eyebrow">When syncing</span><select id="libmode">'+
+        '<option value="mirror"'+(S.libmode==='mirror'?' selected':'')+'>Mirror the sheet \u2014 deleted rows disappear here</option>'+
+        '<option value="merge"'+(S.libmode==='merge'?' selected':'')+'>Add and update only \u2014 never remove</option>'+
+        '</select></label>'+
+        '<span class="small">Blank uses <b>library.csv</b> next to the app. Paste a Google Sheet published as CSV to make the sheet the single source of truth \u2014 every device picks up edits on next launch. Sync overwrites category, equipment and measure from the sheet; exercises you create here stay local until you add them to it.</span>'+
+        '<input type="file" id="csvf" accept=".csv,text/csv" class="sr">'+
+        '<div style="text-align:right;margin-top:10px"><span class="eyebrow">Build '+BUILD+'</span></div>'+
+        '</div>';
+    }
+  }
+  return h+'<div id="libList">'+libList()+'</div>';
+}
+
+function libList(){
+  const q=(ctx.q||'').toLowerCase(), eq=ctx.equip||'';
+  let h='<div class="rail">'+
+    '<button data-act="eqf" data-eq=""'+(eq===''?' class="on"':'')+'>All</button>'+
+    EQUIP.map(x=>'<button data-act="eqf" data-eq="'+esc(x)+'"'+(eq===x?' class="on"':'')+'>'+esc(x)+'</button>').join('')+
+    '</div>';
+  const list=S.lib.filter(e=>!e.archived
+    && (!eq || e.equip===eq)
+    && (!q || e.name.toLowerCase().includes(q) || e.cat.toLowerCase().includes(q) || (e.equip||'').toLowerCase().includes(q)));
+  if(!list.length) return h+'<div class="empty"><div class="h2">Nothing matches</div><p>Try a different word or equipment, or add it as a new exercise.</p><button class="btn primary" data-act="newex">Add exercise</button></div>';
+  CATS.forEach(c=>{
+    const items=list.filter(e=>e.cat===c);
+    if(!items.length) return;
+    h+='<div class="sectionhead"><span class="eyebrow">'+esc(c)+'</span><span class="small">'+items.length+'</span></div>';
+    items.forEach(e=>{
+      const pr=bestFor(e);
+      h+='<div class="card tap" data-act="'+(ctx.picking?'pickex':'openex')+'" data-id="'+e.id+'" style="padding:12px 14px"><div class="between"><div class="stack">'+
+        '<span class="h2" style="font-size:17px">'+esc(e.name)+'</span>'+
+        '<span class="small">'+esc(e.equip)+(e.video?' \u00b7 \u25b6 video':'')+(pr?' \u00b7 best '+pr:'')+'</span></div>'+
+        '<span style="color:var(--muted);font-size:20px">'+(ctx.picking?'+':'\u203a')+'</span></div></div>';
+    });
+  });
+
+  const gone=S.lib.filter(e=>e.archived);
+  if(gone.length && !ctx.picking){
+    h+='<div class="sectionhead"><span class="eyebrow">Removed</span>'+
+       '<span class="small" data-act="showgone" style="cursor:pointer">'+
+       (ctx.showGone?'hide':gone.length+' hidden \u2014 show')+'</span></div>';
+    if(ctx.showGone){
+      gone.forEach(e=>{
+        h+='<div class="card" style="padding:12px 14px;opacity:.65"><div class="between">'+
+          '<div class="stack"><span class="h2" style="font-size:17px">'+esc(e.name)+'</span>'+
+          '<span class="small">'+esc(e.equip)+'</span></div>'+
+          '<button class="btn sm ghost" data-act="exrestore" data-id="'+e.id+'">Restore</button></div></div>';
+      });
+    }
+  }
+  return h;
+}
+function bestFor(ex){
+  const k=loadKind(ex); let best=null;
+  S.hist.forEach(s=>s.entries.filter(e=>e.exId===ex.id).forEach(en=>en.sets.forEach(st=>{
+    if(kindOfSet(ex,st)!==k) return;           // don't rank a plate against a band
+    if(!best || scoreOf(ex,st)>scoreOf(ex,best)) best=st;
+  })));
+  return best?setLabel(ex,best):null;
+}
+function viewExDetail(){
+  const e=ctx.ex, k=loadKind(e), pts=seriesFor(e);
+  let h='<label class="field"><span class="eyebrow">Name</span><input type="text" id="exname" value="'+esc(e.name)+'"></label>'+
+  '<label class="field"><span class="eyebrow">Equipment</span><select id="exequip">'+
+    EQUIP.map(x=>'<option value="'+x+'"'+(x===e.equip?' selected':'')+'>'+x+'</option>').join('')+'</select></label>'+
+  '<div class="row"><label class="field"><span class="eyebrow">Category</span><select id="excat">'+
+    CATS.map(c=>'<option value="'+c+'"'+(c===e.cat?' selected':'')+'>'+c+'</option>').join('')+'</select></label>'+
+  '<label class="field"><span class="eyebrow">Measured in</span><select id="extype">'+
+    '<option value="reps"'+(e.type==='reps'?' selected':'')+'>Reps</option>'+
+    '<option value="time"'+(e.type==='time'?' selected':'')+'>Seconds</option></select></label></div>'+
+  (EITHER_LOAD.indexOf(e.equip)>-1
+    ? '<label class="field"><span class="eyebrow">Loaded with</span><select id="exload">'+
+      '<option value="kg"'+(k==='kg'?' selected':'')+'>Weight (kg)</option>'+
+      '<option value="band"'+(k==='band'?' selected':'')+'>Resistance Tube</option></select></label>'
+    : '')+
+  '<div class="card"><span class="small">'+
+    (k==='none'?'No load field \u2014 each set logs '+measureLabel(e)+' only.'
+     :k==='band'?'Each set logs a band level \u2014 '+BANDS.join(', ')+' \u2014 chosen on the set row while you train. Set a default in your program if you want it pre-filled.'
+     :'Each set logs load in kg, entered on the set row while you train.')+
+    (EITHER_LOAD.indexOf(e.equip)>-1?' Switching this later leaves past sets exactly as you logged them.':'')+'</span></div>'+
+  '<label class="field"><span class="eyebrow">Video link</span><input type="url" id="exvideo" value="'+esc(e.video)+'" placeholder="Paste a YouTube URL"></label>'+
+  (e.video?'<a class="btn block" href="'+esc(e.video)+'" target="_blank" rel="noopener">\u25b6 Watch demo</a><div style="height:14px"></div>':'')+
+  '<label class="field"><span class="eyebrow">Notes / cues</span><textarea id="exnotes" placeholder="Setup, cues, what to feel">'+esc(e.notes)+'</textarea></label>'+
+  '<button class="btn primary block" data-act="exsave">Save exercise</button>';
+  if(pts.length>1){
+    h+='<div class="sectionhead"><span class="eyebrow">Progress</span><span class="small">'+
+      (k==='kg'&&e.type==='reps'?'est. 1RM':'best set')+'</span></div><div class="card">'+chart(pts)+'</div>';
+  } else if(pts.length===1){
+    h+='<div class="sectionhead"><span class="eyebrow">Progress</span></div><div class="card"><span class="small">One session logged. Log another and a trend line appears here.</span></div>';
+  }
+  h+='<div class="divider"></div><button class="btn danger block" data-act="exdel">Remove from library</button>';
+  return h;
+}
+function seriesFor(ex){
+  const k=loadKind(ex), pts=[];
+  S.hist.forEach(s=>{
+    const en=s.entries.find(x=>x.exId===ex.id);
+    if(!en||!en.sets.length) return;
+    const sets=en.sets.filter(st=>kindOfSet(ex,st)===k);   // one load type per trend line
+    if(!sets.length) return;
+    const best=sets.reduce((a,b)=>scoreOf(ex,b)>scoreOf(ex,a)?b:a, sets[0]);
+    pts.push({d:s.date,v:scoreOf(ex,best)});
+  });
+  return pts;
+}
+function chart(pts){
+  const W=440,Hh=150,P=22;
+  const vs=pts.map(p=>p.v), mn=Math.min.apply(null,vs), mx=Math.max.apply(null,vs), span=(mx-mn)||1;
+  const X=i=>P+(i*(W-2*P))/Math.max(1,pts.length-1);
+  const Y=v=>Hh-P-((v-mn)/span)*(Hh-2*P);
+  const line=pts.map((p,i)=>X(i)+','+Y(p.v)).join(' ');
+  const dots=pts.map((p,i)=>'<circle cx="'+X(i)+'" cy="'+Y(p.v)+'" r="3.5" fill="var(--signal)"/>').join('');
+  return '<svg viewBox="0 0 '+W+' '+Hh+'" style="width:100%;height:auto" role="img" aria-label="Progress chart">'+
+    '<polyline points="'+line+'" fill="none" stroke="var(--sage)" stroke-width="2" stroke-linejoin="round"/>'+dots+
+    '<text x="'+P+'" y="14" fill="#8C9A92" font-size="12" font-family="Barlow Condensed">'+(Math.round(mx*10)/10)+'</text>'+
+    '<text x="'+P+'" y="'+(Hh-4)+'" fill="#8C9A92" font-size="12" font-family="Barlow Condensed">'+(Math.round(mn*10)/10)+'</text></svg>';
+}
+
+/* ---------- HISTORY ---------- */
+function viewHistory(){
+  if(!S.hist.length) return '<div class="empty"><div class="h2">Nothing logged yet</div>'+
+    '<p>Finish a session and it lands here — every set you actually completed, not what was planned.</p></div>'+
+    '<div class="row"><button class="btn" data-act="export">Export backup</button>'+
+    '<button class="btn" data-act="import">Import backup</button></div>'+
+    '<input type="file" id="importf" accept="application/json" class="sr">';
+  const totalSets=S.hist.reduce((n,s)=>n+s.entries.reduce((m,e)=>m+e.sets.length,0),0);
+  let h='<div class="card"><div class="between">'+
+    '<div class="stack"><span class="eyebrow">Sessions</span><span class="num" style="font-size:30px">'+S.hist.length+'</span></div>'+
+    '<div class="stack"><span class="eyebrow">Sets logged</span><span class="num" style="font-size:30px">'+totalSets+'</span></div></div></div>';
+  h+=S.hist.slice().reverse().map(sessionCard).join('');
+  h+='<div class="divider"></div><div class="row"><button class="btn" data-act="export">Export backup</button>'+
+    '<button class="btn" data-act="import">Import backup</button></div>'+
+    '<input type="file" id="importf" accept="application/json" class="sr">';
+  return h;
+}
+function viewSessDetail(){
+  const s=ctx.sess;
+  let h='<div class="card"><div class="between"><div class="stack"><span class="eyebrow">'+fmtDate(s.date)+'</span>'+
+    '<span class="h2">'+esc(s.name)+'</span></div>'+
+    '<span class="num" style="font-size:22px;color:var(--muted)">'+(s.duration?fmtDur(s.duration):'')+'</span></div></div>';
+  s.entries.forEach(en=>{
+    const ex=byId(en.exId)||{name:'(deleted)',type:'reps',equip:'Bodyweight'};
+    h+='<div class="exblock"><div class="exhead"><div class="stack"><span class="chip">'+esc(ex.equip)+'</span>'+
+      '<span class="h2">'+esc(ex.name)+'</span></div>'+
+      '<span class="small">'+en.sets.length+' set'+(en.sets.length===1?'':'s')+'</span></div>';
+    en.sets.forEach((st,i)=>{
+      h+='<div class="setrow" style="grid-template-columns:34px 1fr"><span class="setno">'+(i+1)+'</span>'+
+        '<span class="num" style="font-size:18px">'+setLabel(ex,st)+'</span></div>';
+    });
+    h+='</div>';
+  });
+  h+='<button class="btn danger block" data-act="sessdel">Delete this session</button>';
+  return h;
+}
+
+/* ---------- LIVE SESSION ---------- */
+function cirClock(a,label){
+  return '<div class="card" style="text-align:center;border-color:var(--signal)">'+
+    '<div class="eyebrow">'+label+'</div>'+
+    '<div class="bigt" id="cirT">'+mmss(Math.max(0,a.left))+'</div>'+
+    '<button class="btn primary block" id="cirBtn" data-act="cirtoggle" style="margin-top:10px">'+
+    (C.running?'Pause':(a.left===(a.capSec||a.workSec)?'Start':'Resume'))+'</button></div>';
+}
+
+function viewAmrap(a){
+  const rounds = a.entries.length
+    ? Math.min.apply(null, a.entries.map(en=>en.sets.filter(x=>x.done && !x.partial).length)) : 0;
+  let h=cirClock(a,'Time remaining');
+  h+='<div class="card"><div class="between">'+
+    '<div class="stack"><span class="eyebrow">Rounds complete</span><span class="num" style="font-size:40px;color:var(--signal)">'+rounds+'</span></div>'+
+    '<button class="btn primary" data-act="amraprnd">+ Round</button></div></div>';
+  h+='<div class="sectionhead"><span class="eyebrow">Each round</span></div>';
+  a.entries.forEach((en,ei)=>{
+    const ex=byId(en.exId)||{name:'(deleted)',type:'reps',equip:''};
+    const logged=en.sets.filter(x=>x.done).length;
+    h+='<div class="card"><div class="between"><div class="stack">'+
+      '<span class="h2" style="font-size:17px">'+esc(ex.name)+'</span>'+
+      '<span class="small">'+(en.target==null?'\u2014':en.target)+' '+measureLabel(ex)+
+      (en.load!=null?' \u00b7 '+(typeof en.load==='string'?en.load:en.load+'kg'):'')+' \u00b7 '+logged+' logged</span></div>'+
+      '<input type="number" inputmode="numeric" data-partial="'+ei+'" placeholder="part" style="max-width:78px;text-align:center;font-family:var(--card);font-weight:700;font-size:18px"></div></div>';
+  });
+  h+='<button class="btn block" data-act="amrappartial">Log partial round</button>'+
+    '<div class="card" style="margin-top:12px"><span class="small">Tap <b>+ Round</b> each time you get through the whole list. For the round you don\u2019t finish, type the reps you managed next to each exercise and log it as a partial.</span></div>'+
+    '<div class="divider"></div><button class="btn primary block" data-act="finish">Finish workout</button>'+
+    '<div style="height:10px"></div><button class="btn ghost block danger" data-act="discard">Discard workout</button>';
+  return h;
+}
+
+function viewHiit(a){
+  const plan=hiitPlan(), cur=plan[a.step], total=plan.length;
+  let h='';
+  if(cur){
+    const ex=byId(a.entries[cur.exIdx].exId)||{name:'(deleted)'};
+    const nxt=plan[a.step+1];
+    const nxtEx=nxt?(byId(a.entries[nxt.exIdx].exId)||{name:''}):null;
+    h+='<div class="card" style="text-align:center;border-color:'+(cur.kind==='work'?'var(--signal)':'var(--sage)')+'">'+
+      '<div class="eyebrow">'+(cur.kind==='work'?'Work':'Rest')+' \u00b7 round '+cur.round+' of '+a.rounds+'</div>'+
+      '<div class="h1" style="margin:6px 0 2px">'+esc(cur.kind==='work'?ex.name:'Rest')+'</div>'+
+      '<div class="bigt" id="cirT">'+mmss(Math.max(0,a.left))+'</div>'+
+      '<div class="small" style="margin-top:6px">'+(nxt?'Next: '+esc(nxt.kind==='work'?nxtEx.name:'Rest'):'Last one')+'</div>'+
+      '<div class="row" style="margin-top:12px">'+
+        '<button class="btn primary" id="cirBtn" data-act="cirtoggle">'+(C.running?'Pause':(a.step===0&&a.left===a.workSec?'Start':'Resume'))+'</button>'+
+        '<button class="btn" data-act="cirskip">Skip</button></div></div>'+
+      '<div class="card"><span class="small">Step '+(a.step+1)+' of '+total+'. Each finished work interval logs itself \u2014 you don\u2019t need to touch anything.</span></div>';
+  } else {
+    h+='<div class="card" style="border-color:var(--signal);text-align:center">'+
+      '<div class="eyebrow">Done</div><div class="h1" style="margin:6px 0">Circuit complete</div></div>';
+  }
+  h+='<div class="sectionhead"><span class="eyebrow">Logged so far</span></div>';
+  a.entries.forEach(en=>{
+    const ex=byId(en.exId)||{name:'(deleted)'};
+    const n=en.sets.filter(x=>x.done).length;
+    h+='<div class="card" style="padding:12px 14px"><div class="between">'+
+      '<span class="h2" style="font-size:17px">'+esc(ex.name)+'</span>'+
+      '<span class="num" style="font-size:20px;color:'+(n?'var(--signal)':'var(--muted)')+'">'+n+'</span></div></div>';
+  });
+  h+='<div class="divider"></div><button class="btn primary block" data-act="finish">Finish workout</button>'+
+    '<div style="height:10px"></div><button class="btn ghost block danger" data-act="discard">Discard workout</button>';
+  return h;
+}
+
+function viewSession(){
+  const a=S.act;
+  if(a.mode==='amrap') return viewAmrap(a);
+  if(a.mode==='hiit')  return viewHiit(a);
+  let h='<div class="card"><div class="between"><div class="stack"><span class="eyebrow">Started</span>'+
+    '<span class="h2">'+new Date(a.date).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})+'</span></div>'+
+    '<div class="stack" style="align-items:flex-end"><span class="eyebrow">Sets marked</span>'+
+    '<span class="num" style="font-size:26px;color:var(--signal)">'+a.entries.reduce((n,e)=>n+e.sets.filter(s=>s.done).length,0)+'</span></div></div></div>';
+
+  a.entries.forEach((en,ei)=>{
+    const ex=byId(en.exId)||{name:'(deleted)',type:'reps',video:'',equip:'Bodyweight'};
+    const k=loadKind(ex);
+    const timed = ex.type==='time';
+    let cols = (k==='none' ? '34px 1fr 1.2fr' : '34px .9fr 1.2fr 1fr') + (timed?' 44px':'') + ' 46px';
+    const prev=lastSetsFor(en.exId);
+    h+='<div class="exblock"><div class="exhead"><div class="stack" style="min-width:0">'+
+      '<span class="h2 trunc">'+esc(ex.name)+'</span>'+
+      '<div class="tally">'+en.sets.map(s=>'<i class="'+(s.done?'on':'')+'"></i>').join('')+'</div></div>'+
+      '<div style="display:flex;gap:6px;align-items:center"><span class="chip">'+esc(ex.equip)+'</span>'+
+      (ex.video?'<a class="btn sm ghost" href="'+esc(ex.video)+'" target="_blank" rel="noopener">\u25b6</a>':'')+'</div></div>'+
+      '<div class="gridhead" style="grid-template-columns:'+cols+'"><span>Set</span><span>Prev</span>'+
+      (k==='none'?'':'<span>'+loadLabel(ex)+'</span>')+'<span>'+measureLabel(ex)+'</span>'+
+      (timed?'<span></span>':'')+'<span></span></div>';
+
+    en.sets.forEach((s,si)=>{
+      const pv = prev&&prev[si] ? setLabel(ex,prev[si]) : '\u2014';
+      let loadCell='';
+      if(k==='kg'){
+        const ph = prev&&prev[si]&&prev[si].w!=null ? prev[si].w : '';
+        loadCell='<input type="number" inputmode="decimal" data-sf="w" data-e="'+ei+'" data-s="'+si+'" value="'+(s.w==null?'':s.w)+'" placeholder="'+ph+'">';
+      } else if(k==='band'){
+        loadCell='<select data-sf="w" data-e="'+ei+'" data-s="'+si+'"><option value="">\u2014</option>'+
+          BANDS.map(b=>'<option value="'+b+'"'+(s.w===b?' selected':'')+'>'+b+'</option>').join('')+'</select>';
+      }
+      const phr = prev&&prev[si]&&prev[si].r!=null ? prev[si].r : '';
+      h+='<div class="setrow '+(s.done?'done':'')+'" style="grid-template-columns:'+cols+'">'+
+        '<span class="setno">'+(si+1)+'</span><span class="prev">'+pv+'</span>'+loadCell+
+        '<input type="number" inputmode="numeric" data-sf="r" data-e="'+ei+'" data-s="'+si+'" value="'+(s.r==null?'':s.r)+'" placeholder="'+phr+'">'+
+        (timed?'<button class="mark tm" data-act="timeset" data-e="'+ei+'" data-s="'+si+'" aria-label="Start countdown for set '+(si+1)+'">\u25b6</button>':'')+
+        '<button class="mark '+(s.done?'on':'')+'" data-act="mark" data-e="'+ei+'" data-s="'+si+'" aria-label="Mark set '+(si+1)+' done">\u2713</button></div>';
+    });
+    h+='<div class="exfoot"><button class="btn sm ghost" data-act="addset" data-e="'+ei+'">+ Set</button>'+
+      '<button class="btn sm ghost" data-act="delset" data-e="'+ei+'">\u2212 Set</button>'+
+      '<button class="btn sm danger" data-act="delex" data-e="'+ei+'">Remove</button></div></div>';
+  });
+
+  h+='<button class="btn block" data-act="sessadd">+ Add exercise</button><div class="divider"></div>'+
+    '<button class="btn primary block" data-act="finish">Finish workout</button><div style="height:10px"></div>'+
+    '<button class="btn ghost block danger" data-act="discard">Discard workout</button>';
+  return h;
+}
+
+/* ---------- CSV: bulk-build the library in a spreadsheet ---------- */
+const CSV_COLS=['id','name','category','equipment','measure','load_mode','video','notes','archived'];
+
+function csvCell(v){
+  v = v==null ? '' : String(v);
+  return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v;
+}
+function libraryToCsv(){
+  // 'sep=,' tells Excel the delimiter regardless of the machine's locale
+  const rows=['sep=,', CSV_COLS.join(',')];
+  S.lib.forEach(e=>{
+    rows.push([e.sid||slug(e.name), e.name,e.cat,e.equip,e.type==='time'?'time':'reps',
+               EITHER_LOAD.indexOf(e.equip)>-1?(e.loadMode||'kg'):'',
+               e.video||'',e.notes||'', e.archived?'yes':''].map(csvCell).join(','));
+  });
+  return rows.join('\n');
+}
+/* Handles quoted fields, doubled quotes, a BOM, an Excel 'sep=' line, and
+   comma / semicolon / tab delimiters — Excel picks one based on the machine's
+   locale, so the file coming back is not always the file that went out. */
+function parseCsv(text){
+  text = text.replace(/^\ufeff/,'').replace(/\r\n?/g,'\n');
+  let sep=',';
+  // Sheets publishes an Excel 'sep=' cell as 'sep=,,,,,,' — swallow the entire line
+  const hint = text.match(/^sep=(.)[^\n]*\n/i);
+  if(hint){ sep=hint[1]; text=text.slice(hint[0].length); }
+  else {
+    const head=text.split('\n')[0];
+    const n=ch=>(head.split(ch).length-1);
+    const c=n(','), sc=n(';'), tb=n('\t');
+    if(sc>c && sc>=tb) sep=';';
+    else if(tb>c && tb>sc) sep='\t';
+  }
+  const rows=[]; let row=[], cell='', q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){
+      if(c==='"'){ if(text[i+1]==='"'){ cell+='"'; i++; } else q=false; }
+      else cell+=c;
+    } else if(c==='"'){ q=true; }
+    else if(c===sep){ row.push(cell); cell=''; }
+    else if(c==='\n'){ row.push(cell); rows.push(row); row=[]; cell=''; }
+    else cell+=c;
+  }
+  if(cell.length||row.length){ row.push(cell); rows.push(row); }
+  return rows.filter(r=>r.some(x=>String(x).trim()!==''));
+}
+function importCsv(text, opts){
+  opts=opts||{};
+  const rows=parseCsv(text);
+  if(rows.length<2) return {added:0,updated:0,removed:0,errors:['File has no data rows.']};
+  // Find the header row rather than trusting the first line: stray rows above it
+  // (a leftover 'sep=' cell, a title, a blank) would otherwise sink the whole import.
+  let hRow=0;
+  for(let n=0;n<Math.min(rows.length,5);n++){
+    if(rows[n].some(c=>String(c).trim().toLowerCase()==='name')){ hRow=n; break; }
+  }
+  const head=rows[hRow].map(h=>h.trim().toLowerCase().replace(/\s+/g,'_'));
+  const idx={}; CSV_COLS.forEach(c=>{ idx[c]=head.indexOf(c); });
+  if(idx.name<0) return {added:0,updated:0,removed:0,errors:['No "name" column found. Export a CSV first to see the expected headers.']};
+
+  const byName={}; S.lib.forEach(e=>{ byName[e.name.trim().toLowerCase()]=e; });
+  const byLibId={}; S.lib.forEach(e=>{ if(e.sid) byLibId[e.sid.trim().toLowerCase()]=e; });
+  const inFileIds=new Set();
+  let added=0, updated=0, removed=0; const errors=[];
+  const inFile=new Set();
+
+  rows.slice(hRow+1).forEach((r,n)=>{
+    const get=c=>idx[c]>=0 ? String(r[idx[c]]||'').trim() : '';
+    const name=get('name');
+    if(!name) return;
+    inFile.add(name.trim().toLowerCase());
+    const rid=get('id').trim().toLowerCase();
+    if(rid) inFileIds.add(rid);
+    const line=n+hRow+2;
+
+    let cat=get('category'), equip=get('equipment'), measure=get('measure').toLowerCase();
+    const catMatch   = CATS.find(c=>c.toLowerCase()===cat.toLowerCase());
+    const equipMatch = EQUIP.find(c=>c.toLowerCase()===equip.toLowerCase());
+    if(cat && !catMatch)     errors.push('Line '+line+': unknown category "'+cat+'" \u2014 used Golf Specific.');
+    if(equip && !equipMatch) errors.push('Line '+line+': unknown equipment "'+equip+'" \u2014 used Bodyweight.');
+    if(measure && measure!=='reps' && measure!=='time')
+      errors.push('Line '+line+': measure must be reps or time \u2014 used reps.');
+
+    const fields={
+      cat: catMatch||'Golf Specific',
+      equip: equipMatch||'Bodyweight',
+      type: measure==='time'?'time':'reps',
+      loadMode: get('load_mode').toLowerCase()==='band'?'band':'kg'
+    };
+    const video=get('video'), notes=get('notes');
+    // Match on ID first. That is what lets a name change in the sheet arrive as
+    // a rename here instead of a delete plus an add.
+    let existing = rid ? byLibId[rid] : null;
+    if(!existing) existing = byName[name.toLowerCase()];
+    if(existing){
+      if(rid && existing.sid!==rid){ existing.sid=rid; byLibId[rid]=existing; }
+      if(rid && existing.name!==name){ existing.name=name; }
+      existing.cat=fields.cat; existing.equip=fields.equip; existing.type=fields.type;
+      existing.loadMode=fields.loadMode;
+      if(video) existing.video=video;
+      if(notes) existing.notes=notes;
+      if(idx.archived>=0){
+        const flag=get('archived').toLowerCase();
+        existing.archived = (flag==='yes'||flag==='true'||flag==='1'||flag==='y');
+      } else if(opts.mirror){
+        existing.archived=false;   // present in the sheet means present
+      }
+      if(opts.mirror) existing.src='sheet';
+      updated++;
+    } else {
+      const flag=get('archived').toLowerCase();
+      const ex={id:uid(),sid:(rid||null),name:name,cat:fields.cat,equip:fields.equip,type:fields.type,
+                loadMode:fields.loadMode,video:video,notes:notes,
+                archived:(flag==='yes'||flag==='true'||flag==='1'||flag==='y')};
+      if(opts.mirror) ex.src='sheet';
+      S.lib.push(ex); byName[name.toLowerCase()]=ex; added++;
+    }
+  });
+  if(opts.mirror){
+    // Rows the sheet owns — presets, and anything it has supplied before —
+    // disappear here when they disappear from the sheet. Exercises created on
+    // this device are never touched: no sid, never sourced from a sheet.
+    S.lib.forEach(e=>{
+      if(e.archived) return;
+      const owned = !!e.sid || e.src==='sheet';
+      const known = (e.sid && inFileIds.has(e.sid.trim().toLowerCase())) ||
+                    inFile.has(e.name.trim().toLowerCase());
+      if(owned && !known){ e.archived=true; removed++; }
+    });
+  }
+  return {added,updated,removed,errors};
+}
+
+/* ---------- shared library: library.csv sitting next to index.html ----------
+   Upload a new one to the repo and every device picks it up on next launch.
+   Merge only ever adds or updates; nothing on the device is deleted, and
+   notes or videos you've written locally are never blanked by an empty cell. */
+const LIB_URL='library.csv';
+function sigOf(t){ let h=5381; for(let i=0;i<t.length;i++) h=((h<<5)+h+t.charCodeAt(i))|0; return t.length+':'+h; }
+
+async function syncLibrary(manual){
+  try{
+    const base=(S.libsrc||'').trim()||LIB_URL;
+    const url=base+(base.indexOf('?')>-1?'&':'?')+'t='+Date.now();
+    const res=await fetch(url,{cache:'no-store'});
+    if(!res.ok) throw new Error('not found');
+    const text=await res.text();
+    const sig=sigOf(text);
+    const prev=await load(K.libsig,null);
+    if(!manual && prev===sig) return;              // unchanged since last launch
+    const r=importCsv(text,{mirror:S.libmode==='mirror'});
+    await save(K.lib,S.lib);
+    await save(K.libsig,sig);
+    if(r.added||r.updated||r.removed){
+      render();
+      toast('Library synced \u2014 '+r.added+' added, '+r.updated+' updated'+(r.removed?', '+r.removed+' removed':''));
+    } else if(manual){
+      toast(r.errors.length ? ('Sync problem: '+r.errors[0]) : 'Library already up to date');
+    }
+  }catch(e){
+    if(manual) toast(S.libsrc ? 'Could not read that URL \u2014 check it is published as CSV' : 'No library.csv found where this app is hosted');
+  }
+}
+
+/* ============================================================ ACTIONS */
+document.addEventListener('click', async e=>{
+  const el=e.target.closest('[data-act]'); if(!el) return;
+  const a=el.dataset.act, id=el.dataset.id;
+
+  if(a==='tab'){ view=el.dataset.tab; return render(); }
+  if(a==='back'){ return goBack(); }
+  if(a==='eqf'){
+    ctx.equip=el.dataset.eq;
+    const box=document.getElementById('libList'); if(box) box.innerHTML=libList();
+    return;
+  }
+
+  if(a==='resume'){ view='session'; return render(); }
+  if(a==='startempty'){ return startSession(null); }
+  if(a==='startprog'){ return startSession(S.prog.find(p=>p.id===id)); }
+  if(a==='opensess'){ ctx.sess=S.hist.find(s=>s.id===id); view='sessdetail'; return render(); }
+  if(a==='sessdel'){
+    if(!await ask('Delete this session?','The sets logged in it are gone for good.','Delete')) return;
+    S.hist=S.hist.filter(s=>s.id!==ctx.sess.id); await save(K.hist,S.hist);
+    view='history'; toast('Session deleted'); return render();
+  }
+
+  if(a==='newprog'){
+    ctx.prog={id:uid(),name:'New program',mode:'standard',capMin:12,workSec:40,restSec:20,rounds:4,items:[]};
+    S.prog.push(ctx.prog); await save(K.prog,S.prog); view='progedit'; return render();
+  }
+  if(a==='editprog'){ ctx.prog=S.prog.find(p=>p.id===id); view='progedit'; return render(); }
+  if(a==='padd'){ readProgForm(); ctx.picking=true; ctx.q=''; view='library'; return render(); }
+  if(a==='pickex'){
+    if(ctx.picking==='session'){
+      S.act.entries.push({exId:id,sets:[{w:null,r:null,done:false},{w:null,r:null,done:false},{w:null,r:null,done:false}]});
+      await save(K.act,S.act); ctx.picking=false; view='session'; return render();
+    }
+    ctx.prog.items.push({exId:id,sets:3,reps:null,weight:null});
+    await save(K.prog,S.prog); ctx.picking=false; view='progedit'; return render();
+  }
+  if(a==='pmove'){
+    readProgForm();
+    const i=+el.dataset.i, j=i+(+el.dataset.d), its=ctx.prog.items;
+    if(j<0||j>=its.length) return;
+    const tmp=its[i]; its[i]=its[j]; its[j]=tmp;
+    await save(K.prog,S.prog); return render();
+  }
+  if(a==='prem'){ readProgForm(); ctx.prog.items.splice(+el.dataset.i,1); await save(K.prog,S.prog); return render(); }
+  if(a==='pdup'){
+    readProgForm();
+    const c={id:uid(),name:ctx.prog.name+' (copy)',items:JSON.parse(JSON.stringify(ctx.prog.items))};
+    S.prog.push(c); await save(K.prog,S.prog); ctx.prog=c; toast('Program duplicated'); return render();
+  }
+  if(a==='pdel'){
+    if(!await ask('Delete this program?','Sessions you already logged from it stay in History.','Delete')) return;
+    S.prog=S.prog.filter(p=>p.id!==ctx.prog.id); await save(K.prog,S.prog);
+    view='programs'; toast('Program deleted'); return render();
+  }
+
+  if(a==='newex'){
+    const ex={id:uid(),name:'New exercise',cat:'Golf Specific',equip:'Bodyweight',loadMode:'kg',type:'reps',video:'',notes:'',archived:false};
+    S.lib.push(ex); await save(K.lib,S.lib); ctx.ex=ex; view='exdetail'; return render();
+  }
+  if(a==='openex'){ ctx.ex=byId(id); view='exdetail'; return render(); }
+  if(a==='exsave'){ applyExForm(); await save(K.lib,S.lib); toast('Saved'); ctx._scroll=window.scrollY; return render(); }
+  if(a==='exdel'){
+    if(!await ask('Remove from library?','It disappears from the exercise list. Past sessions keep their record.','Remove')) return;
+    ctx.ex.archived=true; await save(K.lib,S.lib); view='library'; toast('Removed'); return render();
+  }
+
+  if(a==='cirtoggle'){ cirToggle(); return; }
+  if(a==='cirskip'){ cirStop(); await hiitAdvance(); return; }
+  if(a==='amraprnd'){
+    S.act.entries.forEach(en=>{ en.sets.push({w:en.load==null?null:en.load, r:en.target, done:true}); });
+    await save(K.act,S.act); beep(880,140); ctx._scroll=window.scrollY; render(); return;
+  }
+  if(a==='amrappartial'){
+    let n=0;
+    document.querySelectorAll('[data-partial]').forEach(inp=>{
+      const v=inp.value===''?null:+inp.value;
+      if(v==null||v<=0) return;
+      const en=S.act.entries[+inp.dataset.partial];
+      en.sets.push({w:en.load==null?null:en.load, r:v, done:true, partial:true});
+      n++;
+    });
+    if(!n) return toast('Type the reps you managed first');
+    await save(K.act,S.act); ctx._scroll=window.scrollY; render(); toast('Partial round logged'); return;
+  }
+  if(a==='timeset'){ return startWork(+el.dataset.e, +el.dataset.s); }
+  if(a==='mark'){
+    readSetInputs();
+    const st=S.act.entries[+el.dataset.e].sets[+el.dataset.s];
+    st.done=!st.done; await save(K.act,S.act);
+    if(st.done) startRest(restDefault);
+    ctx._scroll=window.scrollY; return render();
+  }
+  if(a==='addset'){
+    readSetInputs();
+    const en=S.act.entries[+el.dataset.e], lastS=en.sets[en.sets.length-1];
+    en.sets.push({w:lastS?lastS.w:null,r:lastS?lastS.r:null,done:false});
+    await save(K.act,S.act); ctx._scroll=window.scrollY; return render();
+  }
+  if(a==='delset'){
+    readSetInputs();
+    const en=S.act.entries[+el.dataset.e];
+    if(en.sets.length>1) en.sets.pop();
+    await save(K.act,S.act); ctx._scroll=window.scrollY; return render();
+  }
+  if(a==='delex'){ readSetInputs(); S.act.entries.splice(+el.dataset.e,1); await save(K.act,S.act); return render(); }
+  if(a==='sessadd'){ readSetInputs(); ctx.picking='session'; ctx.q=''; view='library'; return render(); }
+  if(a==='finish'){ return finishSession(); }
+  if(a==='discard'){
+    cirStop();
+    if(!await ask('Discard this workout?','Nothing gets saved to History.','Discard')) return;
+    S.act=null; await save(K.act,null); stopRest(); view='home'; return render();
+  }
+
+  if(a==='export'){
+    const blob=new Blob([JSON.stringify({v:2,lib:S.lib,prog:S.prog,hist:S.hist},null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob), link=document.createElement('a');
+    link.href=url; link.download='range-backup-'+new Date().toISOString().slice(0,10)+'.json';
+    link.click(); URL.revokeObjectURL(url); toast('Backup downloaded');
+  }
+  if(a==='import'){ document.getElementById('importf').click(); }
+  if(a==='csvin'){ document.getElementById('csvf').click(); }
+  if(a==='libtools'){ ctx.tools=!ctx.tools; ctx._scroll=window.scrollY; return render(); }
+  if(a==='libsync'){ await syncLibrary(true); return; }
+  if(a==='showgone'){
+    ctx.showGone=!ctx.showGone;
+    const box=document.getElementById('libList'); if(box) box.innerHTML=libList();
+    return;
+  }
+  if(a==='exrestore'){
+    const ex=byId(id); if(ex) ex.archived=false;
+    await save(K.lib,S.lib);
+    const box=document.getElementById('libList'); if(box) box.innerHTML=libList();
+    toast('Restored'); return;
+  }
+  if(a==='csvout'){
+    // leading BOM makes Excel read it as UTF-8 instead of guessing
+    const blob=new Blob(['\ufeff'+libraryToCsv()],{type:'text/csv;charset=utf-8'});
+    const url=URL.createObjectURL(blob), link=document.createElement('a');
+    link.href=url; link.download='range-exercises.csv'; link.click();
+    URL.revokeObjectURL(url); toast('CSV downloaded');
+  }
+});
+
+document.addEventListener('change', async e=>{
+  if(e.target.dataset && e.target.dataset.sf){ readSetInputs(); await save(K.act,S.act); return; }
+  // equipment / category / measure: apply straight away so the hint and load field match
+  if(e.target.id==='pmode'){
+    readProgForm(); await save(K.prog,S.prog); ctx._scroll=window.scrollY; render(); return;
+  }
+if(e.target.id==='libmode'){ S.libmode=e.target.value; await save(K.libmode,S.libmode); return; }
+  if(['exequip','excat','extype','exload'].indexOf(e.target.id)>-1){
+    applyExForm(); await save(K.lib,S.lib);
+    ctx._scroll=window.scrollY; render(); return;
+  }
+  if(e.target.id==='csvf' && e.target.files[0]){
+    try{
+      const text=await e.target.files[0].text();
+      const res=importCsv(text);
+      if(!res.added && !res.updated){
+        await ask('Nothing imported', (res.errors[0]||'No usable rows found.'), 'OK');
+      } else {
+        await save(K.lib,S.lib);
+        const msg=res.added+' added, '+res.updated+' updated.'+
+          (res.errors.length?' '+res.errors.length+' row(s) needed fixing: '+res.errors.slice(0,3).join(' '):'');
+        await ask('Import complete', msg, 'OK');
+        render();
+      }
+    }catch(err){ toast('Could not read that CSV'); }
+    e.target.value='';
+    return;
+  }
+  if(e.target.id==='importf' && e.target.files[0]){
+    try{
+      const d=JSON.parse(await e.target.files[0].text());
+      if(!d.lib||!d.hist) throw new Error('bad file');
+      if(!await ask('Import backup?','This replaces every exercise, program and session currently in the app.','Import')) return;
+      S.lib=d.lib; migrateLibrary(S.lib); S.prog=d.prog||[]; S.hist=d.hist;
+      await save(K.lib,S.lib); await save(K.prog,S.prog); await save(K.hist,S.hist);
+      toast('Backup imported'); render();
+    }catch(err){ toast('That file isn\u2019t a Range backup'); }
+  }
+});
+
+document.addEventListener('input', e=>{
+  if(e.target.id==='exname'){ document.getElementById('hdTitle').textContent=e.target.value; return; }
+  if(e.target.id==='libq'){
+    ctx.q=e.target.value;
+    const box=document.getElementById('libList');
+    if(box) box.innerHTML=libList();   // results only — the input keeps focus and caret
+  }
+});
+
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{
+  if(view==='session') return;
+  ctx.picking=false; view=b.dataset.tab; render();
+}));
+
+function goBack(){
+  if(view==='progedit'){ readProgForm(); save(K.prog,S.prog); view='programs'; }
+  else if(view==='exdetail'){ applyExForm(); save(K.lib,S.lib); view='library'; }
+  else if(view==='sessdetail') view='history';
+  ctx.picking=false; render();
+}
+function readProgForm(){
+  const n=document.getElementById('pname'); if(n&&ctx.prog) ctx.prog.name=n.value.trim()||ctx.prog.name;
+  if(ctx.prog){
+    const g=id=>document.getElementById(id);
+    if(g('pmode'))   ctx.prog.mode=g('pmode').value;
+    if(g('pcap'))    ctx.prog.capMin=Math.max(1, +g('pcap').value||12);
+    if(g('pwork'))   ctx.prog.workSec=Math.max(5, +g('pwork').value||40);
+    if(g('prest'))   ctx.prog.restSec=Math.max(0, +g('prest').value||20);
+    if(g('prounds')) ctx.prog.rounds=Math.max(1, +g('prounds').value||4);
+  }
+  document.querySelectorAll('[data-pfield]').forEach(inp=>{
+    if(!ctx.prog) return;
+    const it=ctx.prog.items[+inp.dataset.i]; if(!it) return;
+    const raw=inp.value;
+    it[inp.dataset.pfield] = raw==='' ? null : (inp.tagName==='SELECT' ? raw : +raw);
+  });
+}
+function readSetInputs(){
+  if(!S.act) return;
+  document.querySelectorAll('[data-sf]').forEach(inp=>{
+    const en=S.act.entries[+inp.dataset.e]; if(!en) return;
+    const st=en.sets[+inp.dataset.s]; if(!st) return;
+    const raw=inp.value;
+    st[inp.dataset.sf] = raw==='' ? null : (inp.tagName==='SELECT' ? raw : +raw);
+  });
+}
+document.addEventListener('blur', e=>{
+  if(e.target.dataset && e.target.dataset.sf){ readSetInputs(); save(K.act,S.act); }
+  if(['exname','exvideo','exnotes'].indexOf(e.target.id)>-1){ applyExForm(); save(K.lib,S.lib); }
+  if(e.target.id==='libsrc'){ S.libsrc=e.target.value.trim(); save(K.libsrc,S.libsrc); }
+}, true);
+
+function applyExForm(){
+  if(view!=='exdetail' || !ctx.ex) return;
+  const g=id=>document.getElementById(id), x=ctx.ex;
+  if(g('exname'))  x.name  = g('exname').value.trim() || x.name;
+  // Assigned once, on first save under a real name; renaming never changes it.
+  if(!x.sid && x.name && x.name!=='New exercise') x.sid='local-'+slug(x.name);
+  if(g('exequip')) x.equip = g('exequip').value;
+  if(g('excat'))   x.cat   = g('excat').value;
+  if(g('extype'))  x.type  = g('extype').value;
+  if(g('exload'))  x.loadMode = g('exload').value;
+  if(g('exvideo')) x.video = g('exvideo').value.trim();
+  if(g('exnotes')) x.notes = g('exnotes').value;
+}
+
+async function startSession(prog){
+  if(S.act && !await ask('Discard the workout in progress?','You have an unfinished session. Starting a new one throws it away.','Discard and start')) return;
+  const mode = prog ? (prog.mode||'standard') : 'standard';
+  let entries;
+  if(mode==='standard'){
+    entries = prog ? prog.items.map(it=>({
+      exId: it.exId,
+      sets: Array.from({length: it.sets||3}, ()=>({w: it.weight==null?null:it.weight, r: it.reps==null?null:it.reps, done:false}))
+    })) : [];
+  } else {
+    // circuit modes start empty; sets are appended as rounds or intervals complete
+    entries = prog.items.map(it=>({ exId:it.exId, target:(it.reps==null?null:it.reps), load:(it.weight==null?null:it.weight), sets:[] }));
+  }
+  S.act={ id:uid(), date:Date.now(), name: prog?prog.name:'Open session', mode, entries };
+  if(mode==='amrap'){ S.act.capSec=(prog.capMin||12)*60; S.act.left=S.act.capSec; }
+  if(mode==='hiit'){
+    S.act.workSec=prog.workSec||40; S.act.restSec=prog.restSec||20; S.act.rounds=prog.rounds||4;
+    S.act.step=0; S.act.left=S.act.workSec;
+  }
+  C.int&&clearInterval(C.int); C.int=null; C.running=false;
+  await save(K.act,S.act); view='session'; render();
+}
+async function finishSession(){
+  cirStop();
+  readSetInputs();
+  const a=S.act;
+  const entries=a.entries.map(en=>({exId:en.exId, sets:en.sets.filter(s=>s.done)})).filter(en=>en.sets.length);
+  const planned=a.entries.reduce((n,e)=>n+e.sets.length,0);
+  const done=entries.reduce((n,e)=>n+e.sets.length,0);
+  if(!done){
+    if(!await ask('Nothing marked done','No sets are ticked, so this session logs nothing. Finish anyway?','Finish')) return;
+    S.act=null; await save(K.act,null); stopRest(); view='home'; return render();
+  }
+  S.hist.push({id:a.id,date:a.date,name:a.name,duration:Date.now()-a.date,entries});
+  await save(K.hist,S.hist);
+  S.act=null; await save(K.act,null); stopRest();
+  view='history'; render();
+  toast('Logged '+done+' of '+planned+' sets');
+}
+
+boot();
+</script>
+</body>
+</html>
